@@ -30,7 +30,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.github.luoyemyy:framework:1.0.0'
+    implementation 'com.github.luoyemyy:framework:1.0.4'
     implementation 'com.google.zxing:core:3.3.0'
 }
 
@@ -41,7 +41,7 @@ uploadArchives {
         pom.project {
             groupId "com.github.luoyemyy"
             artifactId "qrcode"
-            version '1.0.0'
+            version '1.0.4'
         }
     }
 }

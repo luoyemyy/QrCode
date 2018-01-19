@@ -32,7 +32,7 @@ class WorkHandler(private val mLooper: Looper, private val mFocusListener: Focus
     }
 
     fun focus() {
-        sendEmptyMessageDelayed(1, 200)
+        sendEmptyMessageDelayed(FOCUS, 200)
     }
 
     fun close() {
