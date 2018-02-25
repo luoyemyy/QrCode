@@ -12,7 +12,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Surface
 import com.github.luoyemyy.framework.mvp.MvpPresenterImpl
 import com.github.luoyemyy.qrcode.QrCode
-import com.github.luoyemyy.qrcode.core.WorkHandler
+import com.github.luoyemyy.qrcode.core.ParseHandler
 
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -22,7 +22,7 @@ internal class Scan2PresenterImpl(private val mActivity: AppCompatActivity, priv
     private var mCamera: CameraDevice? = null
     private var mCameraSession: CameraCaptureSession? = null
 
-    private var mWorkHandler: WorkHandler? = null
+    private var mParseHandler: ParseHandler? = null
     private var mMainHandler: Handler? = null
 
     private lateinit var mRequestBuilder: CaptureRequest.Builder
@@ -62,17 +62,17 @@ internal class Scan2PresenterImpl(private val mActivity: AppCompatActivity, priv
             mCameraSession = session
 
             val request = mRequestBuilder.apply { set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO) }.build()
-            session.setRepeatingRequest(request, null, mWorkHandler)
+            session.setRepeatingRequest(request, null, mParseHandler)
 
-            mWorkHandler?.focus()
+            mParseHandler?.focus()
         }
     }
 
     override fun focus() {
-        val msg = mWorkHandler?.obtainMessage() ?: return
+        val msg = mParseHandler?.obtainMessage() ?: return
         msg.obj = mView.getBitmap()
-        msg.what = WorkHandler.PARSE
-        mWorkHandler?.sendMessage(msg)
+        msg.what = ParseHandler.PARSE
+        mParseHandler?.sendMessage(msg)
     }
 
     override fun parseResult(text: String) {
@@ -83,7 +83,7 @@ internal class Scan2PresenterImpl(private val mActivity: AppCompatActivity, priv
     }
 
     override fun open() {
-        mWorkHandler = WorkHandler.start(this)
+        mParseHandler = ParseHandler.start(this)
         mMainHandler = Handler()
 
         requestPermission(1, arrayOf(Manifest.permission.CAMERA)).withPass {
@@ -92,7 +92,7 @@ internal class Scan2PresenterImpl(private val mActivity: AppCompatActivity, priv
                 val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
                 val facing = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)
                 if (facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
-                    cameraManager.openCamera(cameraId, mOpenCallback, mWorkHandler)
+                    cameraManager.openCamera(cameraId, mOpenCallback, mParseHandler)
                     return@withPass
                 }
             }
@@ -100,8 +100,8 @@ internal class Scan2PresenterImpl(private val mActivity: AppCompatActivity, priv
     }
 
     override fun close() {
-        mWorkHandler?.close()
-        mWorkHandler = null
+        mParseHandler?.close()
+        mParseHandler = null
         mMainHandler = null
         mCameraSession?.close()
         mCameraSession = null

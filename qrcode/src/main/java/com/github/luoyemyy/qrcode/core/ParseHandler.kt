@@ -7,7 +7,7 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 
-class WorkHandler(private val mLooper: Looper, private val mFocusListener: FocusListener) : Handler(mLooper) {
+class ParseHandler(private val mLooper: Looper, private val mFocusListener: FocusListener) : Handler(mLooper) {
 
     override fun handleMessage(msg: Message) {
         when (msg.what) {
@@ -44,10 +44,10 @@ class WorkHandler(private val mLooper: Looper, private val mFocusListener: Focus
         val FOCUS = 1
         val PARSE = 2
 
-        fun start(focusListener: FocusListener): WorkHandler {
+        fun start(focusListener: FocusListener): ParseHandler {
             val workerThread = HandlerThread("workerThread")
             workerThread.start()
-            return WorkHandler(workerThread.looper, focusListener)
+            return ParseHandler(workerThread.looper, focusListener)
         }
     }
 

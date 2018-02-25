@@ -11,20 +11,20 @@ import android.view.Surface
 import com.github.luoyemyy.framework.mvp.MvpPresenterImpl
 import com.github.luoyemyy.framework.utils.toast
 import com.github.luoyemyy.qrcode.QrCode
-import com.github.luoyemyy.qrcode.core.WorkHandler
+import com.github.luoyemyy.qrcode.core.ParseHandler
 
 internal class ScanPresenterImpl(private val mActivity: AppCompatActivity, private val mView: IScanMvp.IScanView) : MvpPresenterImpl(mView), IScanMvp.IScanPresenter {
 
     private val mContext: Context = mActivity.applicationContext
     private var mCamera: Camera? = null
 
-    private var mWorkHandler: WorkHandler? = null
+    private var mParseHandler: ParseHandler? = null
     private var mMainHandler: Handler? = null
 
     override fun open() {
         requestPermission(1, arrayOf(Manifest.permission.CAMERA)).withPass {
 
-            mWorkHandler = WorkHandler.start(this)
+            mParseHandler = ParseHandler.start(this)
             mMainHandler = Handler()
 
             val numberOfCameras = Camera.getNumberOfCameras()
@@ -39,6 +39,7 @@ internal class ScanPresenterImpl(private val mActivity: AppCompatActivity, priva
             if (mCamera == null) {
                 mContext.toast(string = "无法打开相机")
                 mActivity.finish()
+                return@withPass
             }
             val params = mCamera!!.parameters
             params.sceneMode = Camera.Parameters.SCENE_MODE_BARCODE
@@ -47,7 +48,7 @@ internal class ScanPresenterImpl(private val mActivity: AppCompatActivity, priva
             mCamera!!.setPreviewTexture(mView.getSurface())
             mCamera!!.startPreview()
 
-            mWorkHandler?.focus()
+            mParseHandler?.focus()
 
         }.request(mActivity)
     }
@@ -71,8 +72,8 @@ internal class ScanPresenterImpl(private val mActivity: AppCompatActivity, priva
     }
 
     override fun close() {
-        mWorkHandler?.close()
-        mWorkHandler = null
+        mParseHandler?.close()
+        mParseHandler = null
         mMainHandler = null
         mCamera?.stopPreview()
         mCamera?.release()
@@ -81,12 +82,12 @@ internal class ScanPresenterImpl(private val mActivity: AppCompatActivity, priva
     override fun focus() {
         mCamera?.autoFocus { success, _ ->
             if (success) {
-                val msg = mWorkHandler?.obtainMessage() ?: return@autoFocus
+                val msg = mParseHandler?.obtainMessage() ?: return@autoFocus
                 msg.obj = mView.getBitmap()
-                msg.what = WorkHandler.PARSE
-                mWorkHandler?.sendMessage(msg)
+                msg.what = ParseHandler.PARSE
+                mParseHandler?.sendMessage(msg)
             } else {
-                mWorkHandler?.focus()
+                mParseHandler?.focus()
             }
         }
     }
