@@ -1,7 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'maven'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.luoyemyy'
 
 android {
     compileSdkVersion 26
@@ -30,27 +32,6 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.github.luoyemyy:framework:1.0.7'
+    implementation 'com.github.luoyemyy:AndroidFramework:1.1.0'
     implementation 'com.google.zxing:core:3.3.0'
-}
-
-uploadArchives {
-    repositories.mavenDeployer {
-        def mavenRepositoryPath = file("../../../luoyemyy_repository")
-        repository(url: "file://${mavenRepositoryPath.absolutePath}")
-        pom.project {
-            groupId "com.github.luoyemyy"
-            artifactId "qrcode"
-            version '1.0.7'
-        }
-    }
-}
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-artifacts {
-    archives sourcesJar
 }
